@@ -11,6 +11,11 @@ namespace TodoApplication.Models
         public TodosContext(DbContextOptions<TodosContext> options):base(options)
         {}
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().HasMany(c => c.Todos).WithOne(a => a.User).HasForeignKey(a => a.UserId);
+        }
+
         public DbSet<Todo> Todos { get; set; }
     }
 }

@@ -21,7 +21,7 @@ namespace TodoApplication.Controllers
             _context = context;
         }
         [HttpGet]
-        public async Task<IActionResult> GetTodos([FromQuery] string status)
+        public async Task<IActionResult> GetTodos([FromQuery] string status,[FromQuery] int userId)
         {
             if (status == null)
             {
@@ -34,7 +34,8 @@ namespace TodoApplication.Controllers
             else if (status != "pending")
                 return BadRequest("Mention correct status");
             var filtered_todos = _context.Todos.Where(todos =>
-              todos.IsCompleted == check);
+                (todos.UserId == userId) &&
+              (todos.IsCompleted == check));
             return Ok(filtered_todos);
             
         }
@@ -55,7 +56,7 @@ namespace TodoApplication.Controllers
         {
             if (id != todo.Id)
             {
-                return BadRequest();
+                return BadRequest("TodoItem Not Found");
             }
             _context.Entry(todo).State = EntityState.Modified;
             try {
@@ -77,7 +78,7 @@ namespace TodoApplication.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateStatus([FromRoute] int id,[FromBody] JsonPatchDocument<Todo> patchEntity)
         {
-            var entity = await _context.Todos.FirstOrDefaultAsync(todo => todo.Id == id);
+            var entity = await _context.Todos.FindAsync(id);
             if (entity == null)
                 return NotFound();
             patchEntity.ApplyTo(entity, ModelState);
