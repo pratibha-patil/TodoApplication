@@ -35,8 +35,12 @@ namespace TodoApplication
             {
                 options.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
             });
-            services.AddDbContext<TodosContext>(
-                options=>options.UseInMemoryDatabase("Todos"));
+
+            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContextPool<TodosContext>(options => options.UseMySql(mySqlConnectionStr, ServerVersion.AutoDetect(mySqlConnectionStr)));
+
+            //services.AddDbContext<TodosContext>(
+            //    options=>options.UseInMemoryDatabase("Todos"));
             services.AddControllers();
         }
 
